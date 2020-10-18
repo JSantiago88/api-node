@@ -50,21 +50,18 @@ app.post('/google', async (req, res) => {
 
     const token = req.body.idtoken;
 
-    if (!token) {
-        return res.status(400).json({
-            err: {
-                message: 'Token not is valid.'
-            },
-            ok: false
-        });
-    }
+     if (!token) {
+         return res.status(400).json({
+             err: {
+                 message: 'Token is required'
+             },
+             ok: false
+         });
+     }
 
     let googleUser = await verify(token)
         .catch(err => {
-            return res.status(500).json({
-                ok: false,
-                err
-            });
+            return err;
         });
 
     User.findOne({ mail: googleUser.mail }, (err, userDB) => {
@@ -78,7 +75,7 @@ app.post('/google', async (req, res) => {
 
         if (userDB) {
 
-            if (userDB === false) {
+            if (userDB.google === false) {
                 return res.status(400).json({
                     ok: false,
                     err: {
@@ -96,7 +93,6 @@ app.post('/google', async (req, res) => {
             });
 
         } else {
-
             let user = new User();
 
             user.name = googleUser.name;
