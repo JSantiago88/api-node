@@ -25,3 +25,15 @@ if (process.env.NODE_ENV === 'dev') {
 }
 
 process.env.URLDB = urlDB;
+
+// =====================
+// TOKEN EXPIRATION
+// =====================
+
+process.env.TOKEN_EXPIRATION = 60 * 60 * 24 * 7;
+
+// =====================
+// AUTH SEED
+// =====================
+
+process.env.SEED_AUTH = process.env.TOKEN_SECRET;
