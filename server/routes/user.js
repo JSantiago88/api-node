@@ -1,12 +1,13 @@
 const express = require('express');
 const User = require('../models/user');
+const { authenticateToken, checkAdminRole } = require('../middlewares/auth');
 
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
 
 const app = express();
 
-app.get('/user', (req, res) => {
+app.get('/user', authenticateToken, (req, res) => {
 
     let from = req.query.from || 0;
     let limitUserForPage = req.query.limit || 5;
@@ -45,7 +46,7 @@ app.get('/user', (req, res) => {
 
 });
 
-app.post('/user', (req, res) => {
+app.post('/user', [authenticateToken, checkAdminRole], (req, res) => {
 
     let body = req.body;
 
@@ -71,7 +72,7 @@ app.post('/user', (req, res) => {
     });
 });
 
-app.put('/user/:id', (req, res) => {
+app.put('/user/:id', [authenticateToken, checkAdminRole], (req, res) => {
 
     let id = req.params.id;
     let body = _.pick(req.body, ['name', 'mail', 'img', 'role', 'state']);
@@ -84,11 +85,20 @@ app.put('/user/:id', (req, res) => {
             });
         }
 
+        if (!userDB) {
+            return res.status(404).json({
+                ok: false,
+                err: {
+                    message: 'User does not exist'
+                }
+            });
+        }
+
         res.json(userDB);
     });
 });
 
-app.delete('/user/:id', (req, res) => {
+app.delete('/user/:id', [authenticateToken, checkAdminRole], (req, res) => {
 
     let id = req.params.id;
 
